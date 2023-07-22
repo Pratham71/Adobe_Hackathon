@@ -1,6 +1,4 @@
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-from datetime import datetime
-start = datetime.now()
 
 
 def sentiment_scores(sentences):
@@ -26,7 +24,3 @@ with open("input/q1/reviews.txt") as file:
         sentences.append(line)
 
 sentiment_scores(sentences)
-
-# Baseline for Enhancement 0.011965
-end = datetime.now()
-print(end-start)

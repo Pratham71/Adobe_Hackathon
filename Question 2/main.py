@@ -4,10 +4,6 @@ from read_csv import read_csv
 from dist_bw_location import dist_bw_location
 from time_diff import time_diff
 from fraud import fraud
-from datetime import datetime
-
-# Baseline
-start = datetime.now()
 
 # Reading CSV file
 transac = read_csv()
@@ -29,5 +25,3 @@ time_30_mins = time_diff(dist_above_20)
 print(fraud(time_30_mins, read_csv()))
 
 # Baseline for Enhancement 2.281092 (lowest)
-end = datetime.now()
-print(end-start)
