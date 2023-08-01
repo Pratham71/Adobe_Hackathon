@@ -1,6 +1,4 @@
-from common_functions import list_files
-from ultralytics import YOLO
-from common_functions import list_files, load_pretrained_model, get_names, read_file, list_of_entities, create_directory, delete_runs
+from common_functions import list_files, load_pretrained_model, get_names, list_of_entities, get_info_using_res
 
 
 directory = "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/Aithon/Ads_problem4/"
@@ -18,7 +16,7 @@ def predict_and_return_list(path_of_image):
     res = model(path_of_image, save_txt=True)
 
     # Reading file
-    info = read_file(img, res[0])
+    info = get_info_using_res(res[0])
 
     # Making List of Entities in Image
     return (list_of_entities(info, names))

@@ -1,5 +1,3 @@
-from ultralytics import YOLO
-import os
 import shutil
 from common_functions import list_files, load_pretrained_model, get_names, get_info_using_res, list_of_entities, create_directory
 

@@ -1,6 +1,5 @@
 import os
 from ultralytics import YOLO
-import shutil
 
 # List Of Commmon Functions
 
@@ -35,15 +34,6 @@ def get_names():
     return (res[0].names)
 
 
-def read_file(img, result):
-    filepath = "C:/Users/allof/Downloads/Timepass/" + \
-        result.save_dir.replace("\\", "/")+"/labels/" + \
-        img.split(".")[0]+".txt"
-    with open(filepath) as file:
-        info = file.readlines()
-    return info
-
-
 def list_of_entities(info, names):
     entities = []
     for i in info:
@@ -57,11 +47,6 @@ def create_directory(entity):
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
-
-
-def delete_runs():
-    runs_directory = "C:/Users/allof/Downloads/Timepass/runs"
-    shutil.rmtree(runs_directory)
 
 
 def get_info_using_res(res):

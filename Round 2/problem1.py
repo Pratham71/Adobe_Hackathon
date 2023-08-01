@@ -1,4 +1,3 @@
-from ultralytics import YOLO
 from PIL import Image
 from common_functions import load_pretrained_model, list_files
 
