@@ -24,6 +24,10 @@ def predict_and_return_list(path_of_image):
     return (list_of_entities(info, names))
 
 
+def common(ideal_list):
+    return list(set(ideal_list[0]).intersection(ideal_list[1]))
+
+
 for folder in folders:
     new_dir = directory+folder+"/"
     ideal_dir = new_dir+"Ideal/"
@@ -36,5 +40,8 @@ for folder in folders:
     for img in ideal_images:
         ideal_images_list.append(predict_and_return_list(ideal_dir+img))
 
+    common_list = common(ideal_images_list)
+    print(ideal_images_list)
+    print(common_list)
     for img in other_images:
-        other_images_list.append(predict_and_return_list(other_dir+img))
+        list_entities = predict_and_return_list(other_dir+img)
