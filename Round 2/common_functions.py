@@ -41,3 +41,12 @@ def read_file(img, result):
     with open(filepath) as file:
         info = file.readlines()
     return info
+
+
+def list_of_entities(info, names):
+    entities = []
+    for line in info:
+        i = int(line.split()[0])
+        if names[i].title() not in entities:
+            entities.append(names[i].title())
+    return entities

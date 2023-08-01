@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import os
 import shutil
-from common_functions import list_files, load_pretrained_model, get_names, read_file
+from common_functions import list_files, load_pretrained_model, get_names, read_file, list_of_entities
 
 
 def copy_img(src_file, dst_file):
@@ -13,15 +13,6 @@ def create_directory(entity):
     isExist = os.path.exists(path)
     if not isExist:
         os.makedirs(path)
-
-
-def list_of_entities(info, names):
-    entities = []
-    for line in info:
-        i = int(line.split()[0])
-        if names[i].title() not in entities:
-            entities.append(names[i].title())
-    return entities
 
 
 def main():
