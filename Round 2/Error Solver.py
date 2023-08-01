@@ -10,6 +10,10 @@ for box in boxes:
     cords = box.xyxy[0].tolist()
     class_id = box.cls[0].item()
     conf = box.conf[0].item()
+
+    # GET CLASS IDS for problems 2-5
     print("Object type:", names[int(class_id)].title())
+
+    # Get Coordinates for problem 4-5
     print("Coordinates:", cords)
     print("Probability:", conf)
