@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import csv
 import shutil
-from common_functions import list_files, load_pretrained_model, get_names, read_file
+from common_functions import list_files, load_pretrained_model, get_names, read_file, delete_runs
 
 
 def entity_counter(info, names):
@@ -57,8 +57,7 @@ def main():
             img.split(".")[0]+".csv"
         write_in_csv(entity_count, csv_filepath)
 
-    runs_directory = "C:/Users/allof/Downloads/Timepass/runs"
-    shutil.rmtree(runs_directory)
+    delete_runs()
 
 
 if __name__ == '__main__':

@@ -1,18 +1,11 @@
 from ultralytics import YOLO
 import os
 import shutil
-from common_functions import list_files, load_pretrained_model, get_names, read_file, list_of_entities
+from common_functions import list_files, load_pretrained_model, get_names, read_file, list_of_entities, create_directory, delete_runs
 
 
 def copy_img(src_file, dst_file):
     shutil.copy(src_file, dst_file)
-
-
-def create_directory(entity):
-    path = entity
-    isExist = os.path.exists(path)
-    if not isExist:
-        os.makedirs(path)
 
 
 def main():
@@ -43,8 +36,7 @@ def main():
             create_directory(dest_path+entity)
             copy_img(directory+img, dest_path+entity)
 
-    runs_directory = "C:/Users/allof/Downloads/Timepass/runs"
-    shutil.rmtree(runs_directory)
+    delete_runs()
 
 
 if __name__ == '__main__':

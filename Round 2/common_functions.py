@@ -1,5 +1,6 @@
 import os
 from ultralytics import YOLO
+import shutil
 
 # List Of Commmon Functions
 
@@ -50,3 +51,15 @@ def list_of_entities(info, names):
         if names[i].title() not in entities:
             entities.append(names[i].title())
     return entities
+
+
+def create_directory(entity):
+    path = entity
+    isExist = os.path.exists(path)
+    if not isExist:
+        os.makedirs(path)
+
+
+def delete_runs():
+    runs_directory = "C:/Users/allof/Downloads/Timepass/runs"
+    shutil.rmtree(runs_directory)
