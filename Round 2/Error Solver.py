@@ -16,4 +16,6 @@ for box in boxes:
 
     # Get Coordinates for problem 4-5
     print("Coordinates:", cords)
+
+    # Get Probabilities for none
     print("Probability:", conf)
