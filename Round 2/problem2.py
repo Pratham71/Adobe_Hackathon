@@ -1,17 +1,15 @@
 from ultralytics import YOLO
 import csv
-import shutil
-from common_functions import list_files, load_pretrained_model, get_names, read_file, delete_runs
+from common_functions import list_files, load_pretrained_model, get_names, get_info_using_res
 
 
 def entity_counter(info, names):
     entity_count = {"Entity": "Count"}
     for line in info:
-        i = int(line.split()[0])
-        if names[i].title() in list(entity_count.keys()):
-            entity_count[names[i].title()] += 1
+        if names[line].title() in list(entity_count.keys()):
+            entity_count[names[line].title()] += 1
         else:
-            entity_count[names[i].title()] = 1
+            entity_count[names[line].title()] = 1
     entity_count['Total'] = sum(list(entity_count.values())[1:])
     return entity_count
 
@@ -44,10 +42,10 @@ def main():
     for img in image_list:
 
         # Predicting for each image
-        res = model(directory+img, save_txt=True)
+        res = model(directory+img)
 
-        # Reading file
-        info = read_file(img, res[0])
+        # Get List of class ids
+        info = get_info_using_res(res[0])
 
         # Dictionary count
         entity_count = entity_counter(info, names)
@@ -56,8 +54,6 @@ def main():
         csv_filepath = "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/OUTPUT/problem2_output/" + \
             img.split(".")[0]+".csv"
         write_in_csv(entity_count, csv_filepath)
-
-    delete_runs()
 
 
 if __name__ == '__main__':

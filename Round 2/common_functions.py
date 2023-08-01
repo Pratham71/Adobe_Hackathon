@@ -46,8 +46,7 @@ def read_file(img, result):
 
 def list_of_entities(info, names):
     entities = []
-    for line in info:
-        i = int(line.split()[0])
+    for i in info:
         if names[i].title() not in entities:
             entities.append(names[i].title())
     return entities
@@ -63,3 +62,11 @@ def create_directory(entity):
 def delete_runs():
     runs_directory = "C:/Users/allof/Downloads/Timepass/runs"
     shutil.rmtree(runs_directory)
+
+
+def get_info_using_res(res):
+    info = []
+    boxes = res.boxes
+    for box in boxes:
+        info.append(int(box.cls[0].item()))
+    return info
