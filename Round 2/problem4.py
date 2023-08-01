@@ -3,10 +3,12 @@ from common_functions import list_files, load_pretrained_model, get_names, list_
 
 directory = "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/Aithon/Ads_problem4/"
 output = "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/OUTPUT/problem4_output/"
+
 first_folder = list_files(directory)[0]
 folders = []
 folders.append(first_folder)
-folders = list_files(directory)
+
+
 model = load_pretrained_model()
 names = get_names()
 
