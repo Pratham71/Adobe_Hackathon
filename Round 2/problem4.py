@@ -28,6 +28,14 @@ def common(ideal_list):
     return list(set(ideal_list[0]).intersection(ideal_list[1]))
 
 
+def missing(list1, list2):
+    return list(set(list2) - set(list1))
+
+
+def extra(list1, list2):
+    return list(set(list1) - set(list2))
+
+
 for folder in folders:
     new_dir = directory+folder+"/"
     ideal_dir = new_dir+"Ideal/"
@@ -39,9 +47,8 @@ for folder in folders:
 
     for img in ideal_images:
         ideal_images_list.append(predict_and_return_list(ideal_dir+img))
-
+    
     common_list = common(ideal_images_list)
-    print(ideal_images_list)
-    print(common_list)
+
     for img in other_images:
         list_entities = predict_and_return_list(other_dir+img)
