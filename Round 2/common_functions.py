@@ -4,14 +4,14 @@ from ultralytics import YOLO
 # List Of Commmon Functions
 
 
-def list_files(directory):
+def list_files(directory,external = ""):
     # list to store files
     res = []
 
     # Iterate directory
     for file_path in os.listdir(directory):
         # add filename to list
-        res.append(file_path)
+        res.append(external+file_path)
     return res
 
 
