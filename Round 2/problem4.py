@@ -99,34 +99,40 @@ def write_in_csv(path, result):
             writer.writerow(row)
 
 
-for folder in folders:
-    # Initialise path for where folders are
-    new_dir = directory+folder+"/"
+def main():
+    for folder in folders:
+        # Initialise path for where folders are
+        new_dir = directory+folder+"/"
 
-    # Initialise path for where Ideal & Other folders are
-    ideal_directory = new_dir+"Ideal/"
-    other_directory = new_dir+"Other/"
+        # Initialise path for where Ideal & Other folders are
+        ideal_directory = new_dir+"Ideal/"
+        other_directory = new_dir+"Other/"
 
-    # Get List of files in that folder
-    ideal_images = list_files(ideal_directory, ideal_directory)
-    other_images = list_files(other_directory, other_directory)
+        # Get List of files in that folder
+        ideal_images = list_files(ideal_directory, ideal_directory)
+        other_images = list_files(other_directory, other_directory)
 
-    # Make a dictionary
-    ideal_images_dir = make_dict_with_info(ideal_images)
-    other_images_dir = make_dict_with_info(other_images)
+        # Make a dictionary
+        ideal_images_dir = make_dict_with_info(ideal_images)
+        other_images_dir = make_dict_with_info(other_images)
 
-    # FINAL CODE
-    need = need_in_other(ideal_images_dir)
-    extra_eliminator = extra_in_other(ideal_images_dir)
-    for key in list(other_images_dir.keys()):
-        other_image = other_images_dir[key]
-        missing = missing_in_img(need, other_image)
-        extra = extra_in_img(extra_eliminator, other_image)
-        result = [["Entity", "Difference", "Meta"]]
-        result.extend(analyze(missing, extra, ideal_images_dir, other_image))
+        # FINAL CODE
+        need = need_in_other(ideal_images_dir)
+        extra_eliminator = extra_in_other(ideal_images_dir)
+        for key in list(other_images_dir.keys()):
+            other_image = other_images_dir[key]
+            missing = missing_in_img(need, other_image)
+            extra = extra_in_img(extra_eliminator, other_image)
+            result = [["Entity", "Difference", "Meta"]]
+            result.extend(
+                analyze(missing, extra, ideal_images_dir, other_image))
 
-        path = output+key.split(".")[0]+".csv"
-        write_in_csv(path, result)
+            path = output+key.split(".")[0]+".csv"
+            write_in_csv(path, result)
+
+
+if __name__ == "__main__":
+    main()
 
     # TODO:
     # ----------DONE need_in_other() ==> common things out of ideal photos
