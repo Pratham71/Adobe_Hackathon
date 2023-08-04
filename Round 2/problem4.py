@@ -128,7 +128,7 @@ for folder in folders:
         path = output+key.split(".")[0]+".csv"
         write_in_csv(path, result)
 
-    # TO DO:
+    # TODO:
     # ----------DONE need_in_other() ==> common things out of ideal photos
     # ----------DONE extra_in_other() ==> uncommon things out of ideal photos
     # ----------DONE missing_in_img() ==> comparison between need_in_other and what is in other
