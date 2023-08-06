@@ -61,7 +61,7 @@ for img_list in values:
                         similar_entities_list.append(similar_string)
         get_analyze_similarity(string, similar_entities_list)
 # TODO
-# ----------Done get_list_of_entity_with_coords() ==> get list of entities with their respective coordinates
+# ----------DONE get_list_of_entity_with_coords() ==> get list of entities with their respective coordinates
 # get_analyze_similarity() ==> get similarity between original entity and other images and
 #                       get the top 3 with highest similarity
 # crop_similarity() ==> crop the images from respective coordinates
