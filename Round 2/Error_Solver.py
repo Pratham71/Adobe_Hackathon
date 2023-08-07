@@ -1,8 +1,6 @@
 from ultralytics import YOLO
-from PIL import Image
-import torch
-import torchvision
-import torchvision.transforms as T
+import cv2
+import numpy as np
 
 
 def load_pretrained_model():
@@ -18,6 +16,8 @@ def load_pretrained_model():
     return model
 
 
+
+
 def get_names():
     model = load_pretrained_model()
     res = model(source="https://ultralytics.com/images/bus.jpg")
@@ -31,14 +31,13 @@ result = results[0]
 boxes = result.boxes
 names = get_names()
 count = 0
-transform = T.ToPILImage()
 for box in boxes:
-    cords = transform(box.xyxy[0])
+    cords = box.xyxy[0]
     class_id = box.cls[0].item()
     conf = box.conf[0].item()
-    im = Image.open("Aithon/All_Images/1.jpg")
-    cropped = im.crop(cords)
-    cropped.save("Aithon/problem5_output/1/1"+str(count)+".jpg")
+    image = "Aithon/All_Images/1.jpg"
+    save_path = "Aithon/problem5_output/1/1"+str(count)+".jpg"
+
     count += 1
     # # GET CLASS IDS for problems 2-5
     # print("Object type:", names[int(class_id)].title())

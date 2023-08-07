@@ -10,14 +10,15 @@
 # ----------DONE make_folder() ==> make a folder for respective enitity
 # ----------DONE return_folder_and_image_name() ==> returns name of folder
 #                & name of image to save the picture in
+# ----------DONE crop_entity() ==> crop the images from respective coordinates
 # get_analyze_similarity() ==> get similarity between original entity and other images
 #                              and get the top 3 with highest similarity
-# crop_entity() ==> crop the images from respective coordinates
 # Esstimate Time To Complete ==> 2 hours
 
 from ultralytics import YOLO
 import os
-from PIL import Image
+import numpy as np
+import cv2
 
 
 def list_files(directory, external=""):
@@ -99,9 +100,18 @@ def return_folder_and_image_name(string, count=0):
     return folder_name, img_name
 
 
-def crop_entity(image):
-    # Crop the images from respective coordinates
-    pass
+def crop_entity(image, coordinates, save_path):
+    coords = np.array(coordinates)
+    i = cv2.imread(image)
+    xmin = int(coords[0])
+    ymin = int(coords[1])
+    xmax = int(coords[2])
+    ymax = int(coords[3])
+    # Crop image
+    cropped_image = i[ymin:ymax, xmin:xmax]
+
+    # Save cropped image
+    cv2.imwrite(save_path, cropped_image)
 
 
 def get_analyze_similarity(orginal_string, other_images_list):
