@@ -11,13 +11,23 @@
 # ----------DONE return_folder_and_image_name() ==> returns name of folder
 #                & name of image to save the picture in
 # ----------DONE crop_entity() ==> crop the images from respective coordinates
-# get_analyze_similarity() ==> get similarity between original entity and other images
+# analyze_similarity() ==> get similarity between original entity and other images
 #                              and get the top 3 with highest similarity
 # Esstimate Time To Complete ==> 2 hours
+
+# METHOD USED for problem 5
+# 1) Crop all similar entities --> DONE
+# 2) Analyze TOP 3 similar entities --> DONE
+# 3) Rename TOP 3 similar entities
+# 4) Delete not similar entities
 
 from ultralytics import YOLO
 import os
 import numpy as np
+import torch
+from PIL import Image
+import clip
+from torch.nn import functional as F
 import cv2
 
 
@@ -100,8 +110,25 @@ def return_folder_and_image_name(string, count=0):
     return folder_name, img_name
 
 
+def clean_coords(coordinates):
+    old_coords = coordinates[1:-1]
+    old_coords = old_coords.split(".")
+    new_coords = []
+    for coord in old_coords:
+        if "," not in coord:
+            new_coords.append(int(coord.strip()))
+        else:
+            new_coords.append(int(coord.split(" ")[-1]))
+    return new_coords
+
+
 def crop_entity(image, coordinates, save_path):
-    coords = np.array(coordinates)
+    # Security Measure
+    coords = clean_coords(coordinates)
+
+    # Converting into Tensor Coordinates
+    coords = torch.tensor(coords)
+    coords = np.array(coords)
     i = cv2.imread(image)
     xmin = int(coords[0])
     ymin = int(coords[1])
@@ -114,10 +141,92 @@ def crop_entity(image, coordinates, save_path):
     cv2.imwrite(save_path, cropped_image)
 
 
-def get_analyze_similarity(orginal_string, other_images_list):
+def crop_lists(original, lists_of_images, path):
+    org_img, org_coords, org_path = original.split(
+        "-")[-1], original.split("-")[2], path+original.split("-")[0].lower()+original.split("-")[1]+"-crop.jpg"
+    crop_entity(org_img, org_coords, org_path)
+    count = 1
+    for img in lists_of_images:
+        org_img, org_coords, org_path = img.split(
+            "-")[-1], img.split("-")[2], path+str(count)+".jpg"
+        crop_entity(org_img, org_coords, org_path)
+        count += 1
+
+
+def rename(top1_name, top2_name, top3_name, path):
+    os.rename(path+top1_name, path+"top1-crop.jpg")
+    os.rename(path+top2_name, path+"top2-crop.jpg")
+    os.rename(path+top3_name, path+"top3-crop.jpg")
+
+
+def delete(path, files):
+    for file in files:
+        if "-crop" not in file:
+            os.remove(path+file)
+
+
+def similarity_bwt_two_pictures(image1, image2):
+
+    image1_features = clip_model.encode_image(image1)
+    image2_features = clip_model.encode_image(image2)
+    return (F.cosine_similarity(image1_features, image2_features).item())
+    # return image1_features.cosine_similarity(image2_features).item()
+
+
+def get_top_three_indexes(listing):
+    top1 = max(listing)
+    top2 = -1
+    top3 = -1
+    index1 = 0
+    index2 = 0
+    index3 = 0
+    count = 0
+    for num in listing:
+        if num == top1:
+            index1 = count
+        elif num > top2:
+            top2 = num
+            index2 = count
+        elif num > top3:
+            top3 = count
+            index3 = count
+        count += 1
+    return index1, index2, index3
+
+
+def analyze(path, files):
+    similar = []
+    similarity = []
+    for file in files:
+        img = Image.open(path+file)
+        if "-crop" in file:
+            original = preprocess(img)
+            original = original.unsqueeze(0).to('cpu')
+        else:
+            pic = preprocess(img)
+            pic = pic.unsqueeze(0).to('cpu')
+            similar.append(pic)
+    for image in similar:
+        similarity.append(similarity_bwt_two_pictures(original, image))
+    i1, i2, i3 = get_top_three_indexes(similarity)
+    return path+files[i1], path+files[i2], path+files[i3]
+
+
+def analyze_similarity(path):
     # Get similarity between original entity and other images
     # and get the top 3 with highest similarity
-    pass
+    files = list_files(path)
+    if len(files) == 1:
+        pass
+    elif len(files) == 2:
+        for file_name in files:
+            if "-crop" not in file_name:
+                os.rename(path+file_name, path+"top1-crop.jpg")
+    else:
+        top1_name, top2_name, top3_name = analyze(path, files)
+        rename(top1_name, top2_name, top3_name, path)
+        delete(list_files(path, files))
+        pass
 
 
 # Initialise Problem & Output Folder
@@ -127,6 +236,9 @@ files = list_files(directory, directory)
 
 model = load_pretrained_model()
 names = get_names()
+
+clip_model = clip.load("ViT-B/32", device='cpu')[0]
+preprocess = clip.load("ViT-B/32", device='cpu')[1]
 
 output_path = "Aithon/problem5_output/"
 create_directory(output_path)
@@ -152,7 +264,8 @@ for img_list in values:
             if img_list != similar_list:
                 for similar_string in similar_list:
                     similar_entity = similar_string.split("-")[0]
-                    if similar_entity != entity:
+                    if similar_entity == entity:
                         similar_entities_list.append(similar_string)
-        get_analyze_similarity(string, similar_entities_list)
-        print(similar_entities_list)
+        crop_lists(string, similar_entities_list,
+                   img_name+entity_for_folder+"/")
+        analyze_similarity(img_name+entity_for_folder+"/")
