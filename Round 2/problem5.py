@@ -11,7 +11,6 @@ import numpy as np
 import torch
 from PIL import Image
 import clip
-from torch.nn import functional as F
 import cv2
 
 
@@ -29,13 +28,13 @@ def list_files(directory, external=""):
 def load_pretrained_model():
     # load a pretrained model
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8n.pt")
+        "models/yolov8n.pt")
     model = YOLO(
         "models/yolov8m.pt")
     model = YOLO(
         "models/yolov8l.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8s.pt")
+        "models/yolov8s.pt")
     return model
 
 
@@ -143,7 +142,7 @@ def similarity_bwt_two_pictures(image1, image2):
 
     image1_features = clip_model.encode_image(image1)
     image2_features = clip_model.encode_image(image2)
-    return (F.cosine_similarity(image1_features, image2_features).item())
+    return (clip.cosine_similarity(image1_features, image2_features).item())
     # return image1_features.cosine_similarity(image2_features).item()
 
 

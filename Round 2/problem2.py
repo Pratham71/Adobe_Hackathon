@@ -17,13 +17,13 @@ def list_files(directory, external=""):
 def load_pretrained_model():
     # load a pretrained model
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8n.pt")
+        "models/yolov8n.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8m.pt")
+        "models/yolov8m.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8l.pt")
+        "models/yolov8l.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8s.pt")
+        "models/yolov8s.pt")
     return model
 
 

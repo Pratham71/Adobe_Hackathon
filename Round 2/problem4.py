@@ -17,13 +17,13 @@ def list_files(directory, external=""):
 def load_pretrained_model():
     # load a pretrained model
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8n.pt")
+        "models/yolov8n.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8m.pt")
+        "models/yolov8m.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8l.pt")
+        "models/yolov8l.pt")
     model = YOLO(
-        "C:/Users/allof/Downloads/Timepass/Adobe Hackathon/Round 2/models/yolov8s.pt")
+        "models/yolov8s.pt")
     return model
 
 
@@ -49,7 +49,7 @@ def checkCount(entity, list_of_names):
     return count
 
 
-def make_dict_with_info(images_file,model,names):
+def make_dict_with_info(images_file, model, names):
     # Making dictionary with name od entity, count, coords
     ideal_images_dir = {}
     for img in images_file:
@@ -158,8 +158,8 @@ def main():
         other_images = list_files(other_directory, other_directory)
 
         # Make a dictionary
-        ideal_images_dir = make_dict_with_info(ideal_images,model,names)
-        other_images_dir = make_dict_with_info(other_images,model,names)
+        ideal_images_dir = make_dict_with_info(ideal_images, model, names)
+        other_images_dir = make_dict_with_info(other_images, model, names)
 
         # Checking Missing & Extra
         need = need_in_other(ideal_images_dir)
