@@ -1,17 +1,11 @@
-# METHOD USED for problem 5
-# 1) Making folders for each image and in that sub folders for its entities
-# 2) Crop all similar entities and save them in respective folder
-# 3) Analyze TOP 3 similar entities
-# 4) Rename TOP 3 similar entities
-# 5) Delete not similar entities
-
 from ultralytics import YOLO
 import os
 import numpy as np
 import torch
 from PIL import Image
 import clip
-import cv2
+from datetime import datetime
+start = datetime.now()
 
 
 def list_files(directory, external=""):
@@ -51,34 +45,7 @@ def create_directory(entity):
         os.makedirs(path)
 
 
-def checkCount(entity, list_of_names):
-    count = 1
-    for name in list_of_names:
-        if entity == name.split("-")[0]:
-            count += 1
-    return count
-
-
-def get_list_of_entity_with_coords(images_file):
-    # get list of entities with their respective coordinates
-    ideal_images_dir = {}
-    for img in images_file:
-        res = model(img)
-        res = res[0]
-        boxes = res.boxes
-        ideal = []
-        for box in boxes:
-            entity = names[int(box.cls[0].item())].title()
-            coords = str(box.xyxy[0].tolist())
-            count = str(checkCount(entity, ideal))
-            string = entity+"-"+count+"-"+coords+"-"+img
-            ideal.append(string)
-        ideal_images_dir[img.split("/")[-1]] = ideal
-
-    return ideal_images_dir
-
-
-def clean_coords(coordinates):
+def cleancoords(coordinates):
     old_coords = coordinates[1:-1]
     old_coords = old_coords.split(".")
     new_coords = []
@@ -90,68 +57,35 @@ def clean_coords(coordinates):
     return new_coords
 
 
-def crop_entity(image, coordinates, save_path):
-    # Security Measure
-    coords = clean_coords(coordinates)
-
-    # Converting into Tensor Coordinates
+def crop_image(image, coords):
+    coords = cleancoords(coords)
     coords = torch.tensor(coords)
     coords = np.array(coords)
-    i = cv2.imread(image)
+    image_arr = np.array(image)
     xmin = int(coords[0])
     ymin = int(coords[1])
     xmax = int(coords[2])
     ymax = int(coords[3])
-    # Crop image
-    cropped_image = i[ymin:ymax, xmin:xmax]
-
-    # Save cropped image
-    cv2.imwrite(save_path, cropped_image)
-
-
-def crop_lists(original, lists_of_images, path):
-    org_img, org_coords, org_path = original.split(
-        "-")[-1], original.split("-")[2], path+original.split("-")[0].lower()+original.split("-")[1]+"-crop.jpg"
-    crop_entity(org_img, org_coords, org_path)
-    count = 1
-    for img in lists_of_images:
-        org_img, org_coords, org_path = img.split(
-            "-")[-1], img.split("-")[2], path+str(count)+".jpg"
-        crop_entity(org_img, org_coords, org_path)
-        count += 1
-
-
-def rename(top1_name, top2_name, top3_name, path):
-    path = os.getcwd().replace("\\", "/")+"/"+path
-    os.rename(path+top1_name, path+"top1-crop.jpg")
-    os.rename(path+top2_name, path+"top2-crop.jpg")
-    if not top3_name:
-        pass
-    else:
-        os.rename(path+top3_name, path+"top3-crop.jpg")
-
-
-def delete(path, files):
-    path = os.getcwd().replace("\\", "/")+"/"+path
-    for file in files:
-        if "-crop" not in file:
-            os.remove(path+file)
-
-
-def similarity_bwt_two_pictures(image1, image2):
-
-    image1_features = clip_model.encode_image(image1)
-    image2_features = clip_model.encode_image(image2)
-    return (clip.cosine_similarity(image1_features, image2_features).item())
-    # return image1_features.cosine_similarity(image2_features).item()
+    crp = image_arr[ymin:ymax, xmin:xmax]
+    return Image.fromarray(crp)
 
 
 def get_top_three_indexes(listing):
-    top1 = max(listing)
-    top2 = -1
-    index1 = 0
-    index2 = 0
-    if len(listing) == 2:
+    if len(listing) == 0:
+        index1 =-100
+        index2=-100
+        index3=-100
+        return index1,index2,index3
+    elif len(listing) == 1:
+        top1= max(listing)
+        index1=listing.index(top1)
+        index2,index3 = -100,-100
+        return index1, index2, index3
+    elif len(listing) == 2:
+        top1=max(listing)
+        index1=0
+        index2=0
+        top2=-1
         index3 = -100
         count = 0
         for num in listing:
@@ -163,6 +97,10 @@ def get_top_three_indexes(listing):
             count += 1
         return index1, index2, index3
     else:
+        top1=max(listing)
+        index1=0
+        index2=0
+        top2=-1
         top3 = -1
         index3 = 0
         count = 0
@@ -179,47 +117,97 @@ def get_top_three_indexes(listing):
         return index1, index2, index3
 
 
-def analyze(path, files):
-    similar = []
-    similarity = []
+def simalirty_btw_images(image1, image2):
+    image1_features = clip_model.encode_image(image1)
+    image2_features = clip_model.encode_image(image2)
+    # Normalize the vectors
+    image1_features = torch.nn.functional.normalize(image1_features, dim=1)
+    image2_features = torch.nn.functional.normalize(image2_features, dim=1)
+
+    # Compute cosine similarity
+    cos_sim = (image1_features @ image2_features.T).clamp(-1, 1)
+
+    # Extract scalar value
+    cos_sim = cos_sim.item()
+
+    return cos_sim
+
+
+def analyze(dictionary):
+    # [image_name, entity, entity_count, cropped_image]
+    for entities in list(dictionary.values()):
+        for entity in entities:
+            similar = []
+            rating = []
+            output_path_for_entity = output_path+entity[0]+"/"+entity[2] + "/"
+            create_directory(output_path_for_entity)
+            image1 = preprocess(entity[3]).unsqueeze(0).to('cpu')
+
+            for similar_entity in entities:
+                if similar_entity[0] != entity[0]:
+                    image2 = preprocess(
+                        similar_entity[3]).unsqueeze(0).to('cpu')
+                    rating.append(simalirty_btw_images(image1, image2))
+                    similar.append(similar_entity[3])
+            i1, i2, i3 = get_top_three_indexes(rating)
+
+            # Saving images
+            entity[3].save(output_path_for_entity+entity[2]+"-crop.jpg")
+            if i1 != -100:
+                similar[i1].save(output_path_for_entity+"top1-crop.jpg")
+            if i2!=-100:
+                similar[i2].save(output_path_for_entity+"top2-crop.jpg")
+            if i3!=-100:
+                similar[i3].save(output_path_for_entity+"top3-crop.jpg")
+            print(entity)
+
+
+def main():
+    dict_for_analyzing = {}
+    count = 0
     for file in files:
-        img = Image.open(path+file)
-        if "-crop" in file:
-            original = preprocess(img)
-            original = original.unsqueeze(0).to('cpu')
-        else:
-            pic = preprocess(img)
-            pic = pic.unsqueeze(0).to('cpu')
-            similar.append(pic)
-    for image in similar:
-        similarity.append(similarity_bwt_two_pictures(original, image))
-    i1, i2, i3 = get_top_three_indexes(similarity)
-    if i3 == -100:
-        return files[i1], files[i2], False
-    else:
-        return files[i1], files[i2], files[i3]
+        image_name = file.split(".")[0]
+        filepath = output_path+image_name+"/"
+        create_directory(filepath)
+
+        res = model(directory+file)[0]
+        boxes = res.boxes
+
+        countDict = {}
+
+        img = Image.open(directory+file)
+        count += 1
+        for box in boxes:
+
+            entity = names[int(box.cls[0].item())]
+
+            if entity in list(countDict.keys()):
+                countDict[entity] += 1
+            else:
+                countDict[entity] = 1
+            entity_count = names[int(box.cls[0].item())
+                                 ].title() + str(countDict[entity])
+            count += 1
+            create_directory(filepath+entity_count)
+
+            coords = str(box.xyxy[0].tolist())
+            cropped_image = crop_image(img, coords)
+
+            list_for_entity = [image_name, entity,
+                               entity_count, cropped_image]
+
+            if entity in list(dict_for_analyzing.keys()):
+                old_list = dict_for_analyzing[entity]
+                old_list.append(list_for_entity)
+                dict_for_analyzing[entity] = old_list
+            else:
+                dict_for_analyzing[entity] = [list_for_entity]
+    analyze(dict_for_analyzing)
 
 
-def analyze_similarity(path):
-    # Get similarity between original entity and other images
-    # and get the top 3 with highest similarity
-    files = list_files(path)
-    if len(files) == 1:
-        pass
-    elif len(files) == 2:
-        for file_name in files:
-            if "-crop" not in file_name:
-                os.rename(path+file_name, path+"top1-crop.jpg")
-    else:
-        top1_name, top2_name, top3_name = analyze(path, files)
-        rename(top1_name, top2_name, top3_name, path)
-        delete(path, list_files(path))
-
-
-# Initialise Problem & Output Folder
 directory = "Aithon/All_Images/"
 
-files = list_files(directory, directory)
+files = list_files(directory)
 
 model = load_pretrained_model()
 names = get_names()
@@ -230,37 +218,8 @@ preprocess = clip.load("ViT-B/32", device='cpu')[1]
 output_path = "Aithon/problem5_output/"
 create_directory(output_path)
 
-list_with_file_entity_coords = get_list_of_entity_with_coords(files)
-values = list(list_with_file_entity_coords.values())
-
-
-def main():
-    for img_list in values:
-        for string in img_list:
-            # Make a folder for respective image
-            img_name = ((string.split("-")[-1]).split(".")
-                        [0]+"/").replace("All_Images", "problem5_output")
-            create_directory(img_name)
-            entity = string.split("-")[0]
-            entity_for_folder = string.split(
-                "-")[0].lower()+string.split("-")[1]
-
-            # Make a folder for respective entity
-            create_directory(img_name+entity_for_folder)
-
-            # Initialise List
-            similar_entities_list = []
-            for similar_list in values:
-                if img_list != similar_list:
-                    for similar_string in similar_list:
-                        similar_entity = similar_string.split("-")[0]
-                        if similar_entity == entity:
-                            similar_entities_list.append(similar_string)
-            crop_lists(string, similar_entities_list,
-                       img_name+entity_for_folder+"/")
-            analyze_similarity(img_name+entity_for_folder+"/")
-
-
 if __name__ == "__main__":
+    # No. of entities 232
+    # Baseline 17 minutes
     main()
-    # Baseline 23 mins 23.269339 seconds
+    print(datetime.now()-start)
