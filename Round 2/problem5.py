@@ -6,35 +6,36 @@
 # 5) Delete not similar entities
 
 from ultralytics import YOLO
+from PIL import Image
 import os
 import numpy as np
 import torch
-from PIL import Image
 import clip
 import cv2
 
 
 def list_files(directory, external=""):
     # list to store files
-    res = []
+    res = [extrenal+file_path for file_path in os.listdir(directory)]
 
     # Iterate directory
-    for file_path in os.listdir(directory):
+    '''for file_path in os.listdir(directory):
         # add filename to list
-        res.append(external+file_path)
+        res.append(external+file_path)'''
     return res
 
 
-def load_pretrained_model():
+def load_pretrained_model(weights):
     # load a pretrained model
-    model = YOLO(
+    model=Yolo(weigths)
+    '''model = YOLO(
         "models/yolov8n.pt")
     model = YOLO(
         "models/yolov8m.pt")
     model = YOLO(
         "models/yolov8l.pt")
     model = YOLO(
-        "models/yolov8s.pt")
+        "models/yolov8s.pt")'''
     return model
 
 
@@ -45,10 +46,10 @@ def get_names():
 
 
 def create_directory(entity):
-    path = entity
-    isExist = os.path.exists(path)
+    #path = entity
+    isExist = os.path.exists(entity)
     if not isExist:
-        os.makedirs(path)
+        os.makedirs(entity)
 
 
 def checkCount(entity, list_of_names):
@@ -63,8 +64,8 @@ def get_list_of_entity_with_coords(images_file):
     # get list of entities with their respective coordinates
     ideal_images_dir = {}
     for img in images_file:
-        res = model(img)
-        res = res[0]
+        res = model(img)[0]
+        #res = res[0]
         boxes = res.boxes
         ideal = []
         for box in boxes:
@@ -79,8 +80,8 @@ def get_list_of_entity_with_coords(images_file):
 
 
 def clean_coords(coordinates):
-    old_coords = coordinates[1:-1]
-    old_coords = old_coords.split(".")
+    old_coords = coordinates[1:-1].split(".")
+    #old_coords = old_coords.split(".")
     new_coords = []
     for coord in old_coords:
         if "," not in coord:
@@ -149,8 +150,8 @@ def similarity_bwt_two_pictures(image1, image2):
 def get_top_three_indexes(listing):
     top1 = max(listing)
     top2 = -1
-    index1 = 0
-    index2 = 0
+    index1,index2=0,0
+    #index2 = 0
     if len(listing) == 2:
         index3 = -100
         count = 0
