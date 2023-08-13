@@ -1,8 +1,8 @@
 from ultralytics import YOLO
+from PIL import Image
 import os
 import numpy as np
 import torch
-from PIL import Image
 import clip
 
 
@@ -68,7 +68,7 @@ def crop_image(image, coords):
     return Image.fromarray(crp)
 
 
-def get_top_three_indexes(listing):
+'''def get_top_three_indexes(listing):
     if len(listing) == 0:
         index1 = -100
         index2 = -100
@@ -112,7 +112,53 @@ def get_top_three_indexes(listing):
                 top3 = count
                 index3 = count
             count += 1
-        return index1, index2, index3
+        return index1, index2, index3'''
+def get_top_three_indexes(listing):
+    match len(listing):
+        case 0:
+            index1 =-100
+            index2=-100
+            index3=-100
+            return index1,index2,index3
+        case 1:
+            top1=max(listing)
+            index1=listing.index(top1)
+            index2,index3=-100,-100
+            return index1,index2,index3
+        case 2:
+            top1=max(listing)
+            index1=0
+            index2=0
+            top2=-1
+            index3 = -100
+            count = 0
+            for num in listing:
+                if num == top1:
+                    index1 = count
+                elif num > top2:
+                    top2 = num
+                    index2 = count
+                count += 1
+            return index1, index2, index3
+        case defualt:
+            top1=max(listing)
+            index1=0
+            index2=0
+            top2=-1
+            top3 = -1
+            index3 = 0
+            count = 0
+            for num in listing:
+                if num == top1:
+                    index1 = count
+                elif num > top2:
+                    top2 = num
+                    index2 = count
+                elif num > top3:
+                    top3 = count
+                    index3 = count
+                count += 1
+            return index1, index2,index3
 
 
 def simalirty_btw_images(image1, image2):
