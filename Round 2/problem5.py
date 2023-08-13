@@ -4,8 +4,6 @@ import numpy as np
 import torch
 from PIL import Image
 import clip
-from datetime import datetime
-start = datetime.now()
 
 
 def list_files(directory, external=""):
@@ -72,20 +70,20 @@ def crop_image(image, coords):
 
 def get_top_three_indexes(listing):
     if len(listing) == 0:
-        index1 =-100
-        index2=-100
-        index3=-100
-        return index1,index2,index3
+        index1 = -100
+        index2 = -100
+        index3 = -100
+        return index1, index2, index3
     elif len(listing) == 1:
-        top1= max(listing)
-        index1=listing.index(top1)
-        index2,index3 = -100,-100
+        top1 = max(listing)
+        index1 = listing.index(top1)
+        index2, index3 = -100, -100
         return index1, index2, index3
     elif len(listing) == 2:
-        top1=max(listing)
-        index1=0
-        index2=0
-        top2=-1
+        top1 = max(listing)
+        index1 = 0
+        index2 = 0
+        top2 = -1
         index3 = -100
         count = 0
         for num in listing:
@@ -97,10 +95,10 @@ def get_top_three_indexes(listing):
             count += 1
         return index1, index2, index3
     else:
-        top1=max(listing)
-        index1=0
-        index2=0
-        top2=-1
+        top1 = max(listing)
+        index1 = 0
+        index2 = 0
+        top2 = -1
         top3 = -1
         index3 = 0
         count = 0
@@ -155,9 +153,9 @@ def analyze(dictionary):
             entity[3].save(output_path_for_entity+entity[2]+"-crop.jpg")
             if i1 != -100:
                 similar[i1].save(output_path_for_entity+"top1-crop.jpg")
-            if i2!=-100:
+            if i2 != -100:
                 similar[i2].save(output_path_for_entity+"top2-crop.jpg")
-            if i3!=-100:
+            if i3 != -100:
                 similar[i3].save(output_path_for_entity+"top3-crop.jpg")
             print(entity)
 
@@ -219,7 +217,4 @@ output_path = "Aithon/problem5_output/"
 create_directory(output_path)
 
 if __name__ == "__main__":
-    # No. of entities 232
-    # Baseline 17 minutes
     main()
-    print(datetime.now()-start)

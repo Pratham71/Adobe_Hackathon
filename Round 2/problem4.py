@@ -146,6 +146,7 @@ def main():
     model = load_pretrained_model()
     names = get_names()
     for folder in folders:
+        create_directory(output_path+folder+"/")
         # Initialise path for where folders are
         new_dir = directory+folder+"/"
 
@@ -172,7 +173,7 @@ def main():
             result.extend(
                 analyze(missing, extra, ideal_images_dir, other_image))
 
-            path = output_path+key.split(".")[0]+".csv"
+            path = output_path+folder+"/"+key.split(".")[0]+".csv"
             write_in_csv(path, result)
 
 
